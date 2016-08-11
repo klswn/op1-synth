@@ -5,15 +5,6 @@ export default class WhiteKey extends Component {
 		borderRight: true,
 	};
 
-	constructor() {
-		super();
-
-		this.state = {
-			isPressed: false,
-			keyDown: false,
-		};
-	}
-
 	componentDidMount() {
 		window.addEventListener('mouseup', this.onMouseUp);
 		window.addEventListener('keydown', this.onKeyDown);
@@ -35,41 +26,48 @@ export default class WhiteKey extends Component {
 	};
 
 	onMouseDown = () => {
-		console.log('onmousedown: ' + this.props.frequency);
+		//console.log('onmousedown: ' + this.props.frequency);
 		this.press({ isPressed: true });
 	};
 
 	onMouseUp = () => {
 		if (this.state.isPressed && !this.state.keyDown) {
-			console.log('onmouseup: ' + this.props.frequency);
+			//console.log('onmouseup: ' + this.props.frequency);
 			this.unpress({ isPressed: false });
 		}
 	};
 
 	onMouseLeave = () => {
 		if (this.state.isPressed && !this.state.keyDown) {
-			console.log('onmouseleave: ' + this.props.frequency);
+			//console.log('onmouseleave: ' + this.props.frequency);
 			this.unpress({ isPressed: false });
-		}
-	};
-
-	onKeyDown = (e) => {
-		if (e.keyCode === this.props.keyCode) {
-			this.press({ isPressed: true, keyDown: true });
-		}
-	};
-
-	onKeyUp = (e) => {
-		if (e.keyCode === this.props.keyCode && this.state.isPressed) {
-			this.unpress({ isPressed: false, keyDown: false });
 		}
 	};
 
 	onMouseEnter = () => {
 		if (this.props.mousePressed) {
-			console.log('onmouseenter: ' + this.props.frequency);
+			//console.log('onmouseenter: ' + this.props.frequency);
 			this.press({ isPressed: true });
 		}
+	};
+
+	calcMargin = () => {
+		const { position } = this.props;
+		let margin = '';
+
+		switch (position) {
+			case "left":
+				margin = '-21px 0 0 -34px';
+				break;
+			case "right":
+				margin = '-21px 0 0 -8px';
+				break;
+			case "middle":
+				margin = '-21px 0 0 -21px';
+				break;
+		}
+
+		return margin;
 	};
 
 	render() {

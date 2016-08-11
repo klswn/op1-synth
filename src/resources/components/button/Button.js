@@ -52,9 +52,9 @@ class Button extends Component {
 				boxSizing: 'border-box',
 				borderBottom: this.props.borderBottom ? '3px solid #000' : 'none',
 				borderRight: this.props.borderRight ? '3px solid #000' : 'none',
-				WebkitBoxShadow: this.state.isPressed ? 'inset 0px -3px 1px 1px rgba(0,0,0,0.3)' : 'none',
-				MozBoxShadow: this.state.isPressed ? 'inset 0px -3px 1px 1px rgba(0,0,0,0.3)' : 'none',
-				boxShadow: this.state.isPressed ? 'inset 0px 0px 10px 4px rgba(0,0,0,0.3)' : 'none',
+				WebkitBoxShadow: this.props.isPressed ? 'inset 0px -3px 1px 1px rgba(0,0,0,0.3)' : 'none',
+				MozBoxShadow: this.props.isPressed ? 'inset 0px -3px 1px 1px rgba(0,0,0,0.3)' : 'none',
+				boxShadow: this.props.isPressed ? 'inset 0px 0px 10px 4px rgba(0,0,0,0.3)' : 'none',
 			},
 			button: {
 				position: 'absolute',

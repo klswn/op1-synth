@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 export default class BlackKey extends Component {
 	static defaultProps = {
 		borderRight: true,
-		position: 'left',
 	};
 
 	constructor() {

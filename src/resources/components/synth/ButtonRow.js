@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import Button from '../button/Button.js';
 
 export default class ButtonRow extends Component {
@@ -22,16 +22,16 @@ export default class ButtonRow extends Component {
 				<Button />
 				<Button />
 				<Button />
-				<Button>
+				<Button isPressed={ this.props.oscKey === 49 }>
 					<div style={ style.number }>{ '1' }</div>
 				</Button>
-				<Button>
+				<Button isPressed={ this.props.oscKey === 50 }>
 					<div style={ style.number }>{ '2' }</div>
 				</Button>
-				<Button>
+				<Button isPressed={ this.props.oscKey === 51 }>
 					<div style={ style.number }>{ '3' }</div>
 				</Button>
-				<Button>
+				<Button isPressed={ this.props.oscKey === 52 }>
 					<div style={ style.number }>{ '4' }</div>
 				</Button>
 				<Button />
@@ -47,3 +47,7 @@ export default class ButtonRow extends Component {
 		);
 	}
 }
+
+ButtonRow.propTypes = {
+	oscKey: PropTypes.number,
+};

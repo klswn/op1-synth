@@ -1,4 +1,6 @@
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
+import keyboardActions from '../../redux/keyboard/actions.js';
 import Speaker from '../speaker/Speaker.js';
 import Display from '../display/Display.js';
 import Volume from '../volume/Volume.js';
@@ -7,18 +9,29 @@ import ButtonRow from './ButtonRow.js';
 import Keyboard from '../keyboard/Keyboard.js';
 import Parameter from '../parameter/Parameter.js';
 
-export default class Synth extends Component {
+class Synth extends Component {
 	constructor() {
 		super();
 
 		this.state = {
 			pressedKeys: [],
+			oscKey: 1,
 			context: {},
 			oscillators: {},
 			mousePressed: false,
 			masterVolume: {},
 			volume: 70,
 		};
+
+		this.keyCodes = [
+			65,87,83,69,68,
+			82,70,71,89,72,
+			85,74,75,79,76,
+			80,186,219,222,
+			90,221,88,220,67
+		];
+
+		this.oscCodes = [49,50,51,52];
 	}
 
 	componentDidMount() {
@@ -33,13 +46,13 @@ export default class Synth extends Component {
 
 		this.setState({ context, masterVolume });
 
-		window.addEventListener('mousedown', this.onMouseDown);
-		window.addEventListener('mouseup', this.onMouseUp);
+		window.addEventListener('keydown', this.onKeyDown);
+		window.addEventListener('keyup', this.onKeyUp);
 	}
 
 	componentWillUnmount() {
-		window.removeEventListener('mousedown', this.onMouseDown);
-		window.removeEventListener('mouseup', this.onMouseUp);
+		window.removeEventListener('keydown', this.onKeyDown);
+		window.removeEventListener('keyup', this.onKeyUp);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -53,54 +66,80 @@ export default class Synth extends Component {
 		}
 	}
 
-	onMouseDown = () => {
-		this.setState({
-			mousePressed: true,
-		});
+	onKeyDown = (e) => {
+		const index = this.keyCodes.indexOf(e.keyCode),
+			oscIndex = this.oscCodes.indexOf(e.keyCode);
+
+		if (index > -1 && !this.props.keys.getIn([index.toString(), 'isPressed'])) {
+			this.playSound(this.props.keys.getIn([index.toString(), 'freq']));
+
+			this.props.dispatch(
+				keyboardActions.keyDown(index.toString())
+			);
+		}
+
+		if (oscIndex > -1 && this.state.oscKey !== e.keyCode) {
+			this.setState({
+				oscKey: e.keyCode,
+			});
+		}
 	};
 
-	onMouseUp = () => {
-		this.setState({
-			mousePressed: false,
-		});
+	onKeyUp = (e) => {
+		const index = this.keyCodes.indexOf(e.keyCode);
+
+		if (index > -1) {
+			this.stopSound(this.props.keys.getIn([index.toString(), 'freq']));
+
+			this.props.dispatch(
+				keyboardActions.keyUp(index.toString())
+			);
+		}
 	};
 
-	onKeyPress = (frequency) => {
-		let { context, oscillators, masterVolume } = this.state,
-		osc = context.createOscillator(),
-		osc2 = context.createOscillator();
+	playSound = (frequency) => {
+		let { context, oscillators, masterVolume, oscKey } = this.state,
+		osc = context.createOscillator();
 
-		osc.type = 'sine';
-		osc2.type = 'sine';
+		switch(oscKey) {
+			case 49:
+				osc.type = 'sine';
+				break;
+			case 50:
+				osc.type = 'sawtooth';
+				break;
+			case 51:
+				osc.type = 'triangle';
+				break;
+			case 52:
+				osc.type = 'square';
+				break;
+			default:
+				osc.type = 'sine';
+				break;
+		}
+		
 		osc.frequency.value = frequency;
-		osc2.frequency.value = frequency;
 
-		oscillators[frequency] = [ osc, osc2 ];
+		oscillators[frequency] = osc;
 
 		osc.connect(masterVolume);
-		osc2.connect(masterVolume);
 
 		masterVolume.connect(context.destination);
 
 		osc.start(0);
-		osc2.start(0);
-		
+
 		this.setState({ oscillators });
 	};
 
-	onKeyRelease = (frequency) => {
+	stopSound = (frequency) => {
 		let { oscillators } = this.state;
 
-		oscillators[frequency].forEach(osc => {
-			osc.stop(0);
-		});
+		oscillators[frequency].stop(0);
 	};
 
 	onKeyChange = (pressedKeys) => {
 		this.setState({ pressedKeys });
-
-		console.log('synthOnKeyChange:', pressedKeys);
-		console.log('-----------------------------');
 	};
 
 	onKnobChange = (name, value) => {
@@ -203,11 +242,11 @@ export default class Synth extends Component {
 						<Volume
 							value={ this.state.volume }
 							onChange={ this.onKnobChange.bind(this, 'volume')} />
-						<Button borderRight={ true }/>
+						<Button borderRight={ true } />
 						<Button />
 					</div>
 
-					<Display />
+					<Display oscKey={ this.state.oscKey } />
 
 					<Parameter color={ '#62B8F3' } onChange={ this.onKnobChange.bind(this, 'blue')} />
 					<Parameter color={ '#01BB00' } onChange={ this.onKnobChange.bind(this, 'green')} />
@@ -219,7 +258,8 @@ export default class Synth extends Component {
 						<Button borderRight={ false }/>
 					</div>
 					
-					<ButtonRow />
+					<ButtonRow
+						oscKey={ this.state.oscKey } />
 
 					<div style={ style.controlGroup }>
 						<Button />
@@ -228,19 +268,13 @@ export default class Synth extends Component {
 						<Button />
 						<Button />
 						<Button />
-						<Button borderBottom={ false }/>
-						<Button borderBottom={ false }/>
+						<Button borderBottom={ false } />
+						<Button borderBottom={ false } />
 						<Button borderBottom={ false }>
 							<div style={ style.text }>{ 'Shift' }</div>
 						</Button>
 					</div>
-
-					<Keyboard
-						mousePressed= { this.state.mousePressed }
-						pressedKeys={ this.state.pressedKeys }
-						onKeyPress={ this.onKeyPress }
-						onKeyRelease={ this.onKeyRelease }
-						onChange={ this.onKeyChange } />
+					<Keyboard keys={ this.props.keys } />					
 				</div>
 				<div style={ style.model }>
 					{ 'OP-1' }
@@ -256,3 +290,13 @@ export default class Synth extends Component {
 		);
 	}
 }
+
+function mapStateToProps(state) {
+	const { keys } = state;
+
+	return {
+		keys: keys,
+	};
+}
+
+export default connect(mapStateToProps)(Synth);
