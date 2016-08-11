@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Spotify Analytics App",
   "scripts": {
+    "build": "webpack --config ./webpack.prod.config.js --progress --colors",
     "start": "node server.js",
     "lint": "eslint src",
     "test": "jest"
