@@ -15,7 +15,7 @@ class Synth extends Component {
 
 		this.state = {
 			pressedKeys: [],
-			oscKey: 1,
+			oscKey: 49,
 			context: {},
 			oscillators: {},
 			mousePressed: false,
