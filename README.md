@@ -12,6 +12,6 @@ A *very* lightweight version of Teenage Engineering's OP-1 Synthesizer built wit
 ## TODO
 - Optimize keyboard listener
 - Animate waveform of oscillator(s) on the display
-- Allow users to stack osciallators
+- Allow users to stack oscillators
 - Fix mouse functionality
 - Add a drum pad
