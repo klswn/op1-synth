@@ -11,36 +11,6 @@ class Button extends Component {
       style: {},
    };
 
-   constructor() {
-      super();
-
-      this.state = {
-         isPressed: false,
-      };
-   }
-
-   componentDidMount() {
-      window.addEventListener('mouseup', this.onMouseUp);
-   }
-
-   componentWillUnmount() {
-      window.removeEventListener('mouseup', this.onMouseUp);
-   }
-
-   onMouseDown = () => {
-      this.setState({
-         isPressed: true,
-      });
-   };
-
-   onMouseUp = () => {
-      if (this.state.isPressed) {
-         this.setState({
-            isPressed: false,
-         });
-      }
-   };
-
    render() {
       const style = {
          wrapper: {
@@ -69,9 +39,7 @@ class Button extends Component {
       };
 
       return (
-         <div style={ style.wrapper }
-            onMouseDown={ this.onMouseDown }
-            onMouseUp={ this.onMouseUp }>
+         <div style={ style.wrapper }>
             <div style={ style.button }>
                <div style={ this.props.style }>
                	{ this.props.children }

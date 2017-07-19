@@ -14,6 +14,16 @@ export default class ButtonRow extends Component {
             WebkitUserSelect: 'none',
             userSelect: 'none',
          },
+         arrow: {
+            fontFamily: '\'Quicksand\', sans-serif',
+            fontSize: '1.5rem',
+            position: 'relative',
+            top: 4,
+            textAlign: 'center',
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+         }
       };
 
       return (
@@ -34,8 +44,12 @@ export default class ButtonRow extends Component {
             <Button isPressed={ this.props.oscKey === 52 }>
                <div style={ style.number }>{ '4' }</div>
             </Button>
-            <Button />
-            <Button />
+            <Button isPressed={ this.props.arrowKey === 53 }>
+               <div style={ style.arrow }>{ '<' }</div>
+            </Button>
+            <Button isPressed={ this.props.arrowKey === 54 }>
+               <div style={ style.arrow }>{ '>' }</div>
+            </Button>
             <Button />
             <Button />
             <Button />

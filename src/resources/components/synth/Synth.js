@@ -16,6 +16,7 @@ class Synth extends Component {
       this.state = {
          pressedKeys: [],
          oscKey: 49,
+         arrowKey: 0,
          context: {},
          oscillators: {},
          mousePressed: false,
@@ -32,6 +33,8 @@ class Synth extends Component {
       ];
 
       this.oscCodes = [49, 50, 51, 52];
+
+      this.arrowCodes = [53, 54]; // [ left arrow, right arrow ]
    }
 
    componentDidMount() {
@@ -68,7 +71,8 @@ class Synth extends Component {
 
    onKeyDown = (e) => {
       const index = this.keyCodes.indexOf(e.keyCode),
-         oscIndex = this.oscCodes.indexOf(e.keyCode);
+         oscIndex = this.oscCodes.indexOf(e.keyCode),
+         arrowIndex = this.arrowCodes.indexOf(e.keyCode);
 
       if (index > -1 && !this.props.keys.getIn([index.toString(), 'isPressed'])) {
          this.playSound(this.props.keys.getIn([index.toString(), 'freq']));
@@ -82,6 +86,18 @@ class Synth extends Component {
          this.setState({
             oscKey: e.keyCode,
          });
+      }
+
+      if (arrowIndex > -1 && this.state.arrowKey !== e.keyCode) {
+         if (this.state.arrowKey === 0) {
+            this.setState({
+               arrowKey: e.keyCode
+            });
+         } else {
+            this.setState({
+               arrowKey: 0
+            });
+         }
       }
    };
 
@@ -98,10 +114,11 @@ class Synth extends Component {
    };
 
    playSound = (frequency) => {
-      let { context, oscillators, masterVolume, oscKey } = this.state,
-         osc = context.createOscillator();
+      let { context, oscillators, masterVolume, oscKey, arrowKey } = this.state,
+         osc = context.createOscillator(),
+         octave = 1;
 
-      switch(oscKey) {
+      switch (oscKey) {
          case 49:
             osc.type = 'sine';
             break;
@@ -119,9 +136,21 @@ class Synth extends Component {
             break;
       }
 
-      osc.frequency.value = frequency;
+      switch (arrowKey) {
+         case 53:
+            octave = 0.5;
+            break;
+         case 54:
+            octave = 2;
+            break;
+         default:
+            octave = 1;
+            break;
+      }
 
-      oscillators[frequency] = osc;
+      osc.frequency.value = frequency * octave;
+
+      oscillators[frequency * octave] = osc;
 
       osc.connect(masterVolume);
 
@@ -133,9 +162,22 @@ class Synth extends Component {
    };
 
    stopSound = (frequency) => {
-      let { oscillators } = this.state;
+      let { oscillators, arrowKey } = this.state,
+         octave = 1;
 
-      oscillators[frequency].stop(0);
+      switch (arrowKey) {
+         case 53:
+            octave = 0.5;
+            break;
+         case 54:
+            octave = 2;
+            break;
+         default:
+            octave = 1;
+            break;
+      }
+
+      oscillators[frequency * octave].stop(0);
    };
 
    onKeyChange = (pressedKeys) => {
@@ -259,7 +301,8 @@ class Synth extends Component {
                </div>
 
                <ButtonRow
-                  oscKey={ this.state.oscKey } />
+                  oscKey={ this.state.oscKey }
+                  arrowKey={ this.state.arrowKey } />
 
                <div style={ style.controlGroup }>
                   <Button />
