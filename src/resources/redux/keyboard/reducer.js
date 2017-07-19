@@ -5,22 +5,15 @@ import { keyboardInitialState } from './initialState.js';
 
 const initialState = fromJS(keyboardInitialState).sort((a, b) => a.get('freq') - b.get('freq'));
 
-console.log(initialState.toJS());
-
-function keyboardReducer(
-	state = initialState,
-	action
-) {
-	switch (action.type) {
-		case KEY_DOWN:
-			return state.setIn([action.keyCode, 'isPressed'], true);
-
-		case KEY_UP:
-			return state.setIn([action.keyCode, 'isPressed'], false);
-
-		default:
-			return state;
-	}
+function keyboardReducer(state = initialState, action) {
+   switch (action.type) {
+      case KEY_DOWN:
+         return state.setIn([action.keyCode, 'isPressed'], true);
+      case KEY_UP:
+         return state.setIn([action.keyCode, 'isPressed'], false);
+      default:
+         return state;
+   }
 };
 
 export default keyboardReducer;
