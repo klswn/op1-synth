@@ -16,10 +16,10 @@ export default class Volume extends Component {
    render() {
       return (
          <div style={ this.style.wrapper }>
-         <Knob
-            type="volume"
-            value={ this.props.value }
-            onChange={ this.props.onChange } />
+            <Knob
+               type="volume"
+               value={ this.props.value }
+               onChange={ this.props.onChange } />
          </div>
       );
    }

@@ -41,9 +41,9 @@ export default class Parameter extends Component {
       return (
          <div style={ style.wrapper }>
             <div style={ style.outer }>
-            <Knob
-               color={ this.props.color }
-               onChange={ this.props.onChange } />
+               <Knob
+                  color={ this.props.color }
+                  onChange={ this.props.onChange } />
             </div>
          </div>
       );
