@@ -1,14 +1,8 @@
 import { combineReducers } from 'redux';
 import keyboardReducer from './keyboard/reducer.js';
 
-const reducers = combineReducers(
-   Object.assign(
-      {},
-      {
-         keys: keyboardReducer,
-      },
-      {}
-   )
-);
+const reducers = combineReducers({
+   keys: keyboardReducer,
+});
 
 export default reducers;

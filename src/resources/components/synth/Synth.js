@@ -13,6 +13,7 @@ class Synth extends Component {
    constructor() {
       super();
 
+      // TODO: Move most of this to Redux
       this.state = {
          pressedKeys: [],
          oscKey: 49,
