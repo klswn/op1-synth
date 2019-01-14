@@ -9,7 +9,7 @@
   },
   "parser": "babel-eslint",
   "rules": {
-    "indent": [2, 3, { "SwitchCase": 1 }],
+    "indent": [2, 2, { "SwitchCase": 1 }],
     "quotes": [2, "single"],
     "strict": [2, "never"],
     "react/jsx-uses-react": 2,
