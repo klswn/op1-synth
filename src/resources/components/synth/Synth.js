@@ -13,16 +13,15 @@ class Synth extends Component {
   constructor() {
     super();
 
-    // TODO: Move most of this to Redux
     this.state = {
       pressedKeys: [],
-      oscKeys: [49],
+      oscKey: 49,
       arrowKey: 0,
       context: {},
       oscillators: {},
       mousePressed: false,
       masterVolume: {},
-      volume: 50,
+      volume: 70,
     };
 
     this.keyCodes = [
@@ -38,19 +37,17 @@ class Synth extends Component {
     this.arrowCodes = [53, 54]; // [ left arrow, right arrow ]
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
 
     const context = new AudioContext();
 
     let masterVolume = context.createGain();
-    let analyser = context.createAnalyser();
 
     masterVolume.gain.value = 0.5;
-    masterVolume.connect(analyser);
-    analyser.connect(context.destination);
+    masterVolume.connect(context.destination);
 
-    this.setState({ context, masterVolume, analyser });
+    this.setState({ context, masterVolume });
 
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
@@ -59,17 +56,6 @@ class Synth extends Component {
   componentWillUnmount() {
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    let { volume } = prevState,
-      { masterVolume } = this.state;
-
-    // if (volume !== this.state.volume) {
-    //   masterVolume.gain.value = volume / 127;
-    //
-    //   this.setState({ masterVolume });
-    // }
   }
 
   onKeyDown = (e) => {
@@ -85,21 +71,9 @@ class Synth extends Component {
       );
     }
 
-    if (oscIndex > -1) {
-      let updatedOscKeys = this.state.oscKeys;
-
-      if (this.state.oscKeys.indexOf(e.keyCode) > -1) {
-        // remove osc key
-        if (this.state.oscKeys.length > 1) {
-          updatedOscKeys = this.state.oscKeys.filter(k => k !== e.keyCode);
-        }
-      } else {
-        // add osc key
-        updatedOscKeys.push(e.keyCode);
-      }
-
+    if (oscIndex > -1 && this.state.oscKey !== e.keyCode) {
       this.setState({
-        oscKeys: updatedOscKeys,
+        oscKey: e.keyCode,
       });
     }
 
@@ -129,73 +103,55 @@ class Synth extends Component {
   };
 
   playSound = (frequency) => {
-    let { context, oscillators, masterVolume, analyser, oscKeys, arrowKey } = this.state,
+    let { context, oscillators, masterVolume, oscKey, arrowKey } = this.state,
+      osc = context.createOscillator(),
       octave = 1;
 
-    oscKeys.forEach(oscKey => {
-      let osc = context.createOscillator();
-      let compressor = context.createDynamicsCompressor();
+    switch (oscKey) {
+      case 49:
+        osc.type = 'sine';
+        break;
+      case 50:
+        osc.type = 'sawtooth';
+        break;
+      case 51:
+        osc.type = 'triangle';
+        break;
+      case 52:
+        osc.type = 'square';
+        break;
+      default:
+        osc.type = 'sine';
+        break;
+    }
 
-      switch (oscKey) {
-        case 49:
-          osc.type = 'sine';
-          break;
-        case 50:
-          osc.type = 'sawtooth';
-          break;
-        case 51:
-          osc.type = 'triangle';
-          break;
-        case 52:
-          osc.type = 'square';
-          break;
-        default:
-          osc.type = 'sine';
-          break;
-      }
+    switch (arrowKey) {
+      case 53:
+        octave = 0.5;
+        break;
+      case 54:
+        octave = 2;
+        break;
+      default:
+        octave = 1;
+        break;
+    }
 
-      switch (arrowKey) {
-        case 53:
-          octave = 0.5;
-          break;
-        case 54:
-          octave = 2;
-          break;
-        default:
-          octave = 1;
-          break;
-      }
+    osc.frequency.value = frequency * octave;
 
-      compressor.attack.setValueAtTime(1, context.currentTime + 1000);
-      compressor.release.setValueAtTime(0, context.currentTime + 1000);
+    oscillators[frequency * octave] = osc;
 
-      osc.frequency.value = frequency * octave;
+    osc.connect(masterVolume);
 
-      oscillators[frequency * octave * oscKey] = osc;
+    masterVolume.connect(context.destination);
 
-      masterVolume.gain.value = 0.3 / oscKeys.length;
-
-      // normal
-      osc.connect(masterVolume);
-      masterVolume.connect(analyser);
-
-      // with compressor
-      // osc.connect(compressor);
-      // compressor.connect(masterVolume);
-      // masterVolume.connect(analyser);
-
-      // connect to analyser
-      analyser.connect(context.destination);
-
-      // start the oscillator
-      osc.start(0);
-    });
+    osc.start(0);
 
     this.setState({ oscillators });
   };
 
   stopSound = (frequency) => {
-    let { oscillators, arrowKey, oscKeys } = this.state,
+    let { oscillators, arrowKey } = this.state,
       octave = 1;
 
     switch (arrowKey) {
@@ -210,9 +166,7 @@ class Synth extends Component {
         break;
     }
 
-    oscKeys.forEach(oscKey => {
-      oscillators[frequency * octave * oscKey].stop(0);
-    });
+    oscillators[frequency * octave].stop(0);
   };
 
   onKeyChange = (pressedKeys) => {
@@ -311,66 +265,60 @@ class Synth extends Component {
       { diameter, blue, green, white, orange } = this.state;
 
     return (
-      <div style={ style.synth }>
-        <div style={ style.modules }>
-          <Speaker />
+       <div style={ style.synth }>
+          <div style={ style.modules }>
+             <Speaker />
 
-          <div style={ style.squareGroup }>
-            <Volume
-              value={ this.state.volume }
-              onChange={ this.onKnobChange.bind(this, 'volume')}
-            />
-            <Button borderRight={ true } />
-            <Button />
+             <div style={ style.squareGroup }>
+                <Volume
+                   value={ this.state.volume }
+                   onChange={ this.onKnobChange.bind(this, 'volume')} />
+                <Button borderRight={ true } />
+                <Button />
+             </div>
+
+             <Display oscKey={ this.state.oscKey } />
+
+             <Parameter color={ '#62B8F3' } onChange={ this.onKnobChange.bind(this, 'blue')} />
+             <Parameter color={ '#01BB00' } onChange={ this.onKnobChange.bind(this, 'green')} />
+             <Parameter color={ '#FFFFFF' } onChange={ this.onKnobChange.bind(this, 'white')} />
+             <Parameter color={ '#F85105' } onChange={ this.onKnobChange.bind(this, 'orange')} />
+
+             <div style={ style.rectGroup }>
+                <Button borderRight={ false }/>
+                <Button borderRight={ false }/>
+             </div>
+
+             <ButtonRow
+                oscKey={ this.state.oscKey }
+                arrowKey={ this.state.arrowKey } />
+
+             <div style={ style.controlGroup }>
+                <Button />
+                <Button />
+                <Button />
+                <Button />
+                <Button />
+                <Button />
+                <Button borderBottom={ false } />
+                <Button borderBottom={ false } />
+                <Button borderBottom={ false }>
+                   <div style={ style.text }>{ 'Shift' }</div>
+                </Button>
+             </div>
+             <Keyboard keys={ this.props.keys } />
           </div>
-
-          <Display
-            oscKeys={ this.state.oscKeys }
-            analyser={this.state.analyser}
-          />
-
-          <Parameter color={ '#62B8F3' } onChange={ this.onKnobChange.bind(this, 'blue')} />
-          <Parameter color={ '#01BB00' } onChange={ this.onKnobChange.bind(this, 'green')} />
-          <Parameter color={ '#FFFFFF' } onChange={ this.onKnobChange.bind(this, 'white')} />
-          <Parameter color={ '#F85105' } onChange={ this.onKnobChange.bind(this, 'orange')} />
-
-          <div style={ style.rectGroup }>
-            <Button borderRight={ false }/>
-            <Button borderRight={ false }/>
+          <div style={ style.model }>
+             { 'OP-1' }
           </div>
-
-          <ButtonRow
-            oscKeys={ this.state.oscKeys }
-            arrowKey={ this.state.arrowKey }
-          />
-
-          <div style={ style.controlGroup }>
-            <Button />
-            <Button />
-            <Button />
-            <Button />
-            <Button />
-            <Button />
-            <Button borderBottom={ false } />
-            <Button borderBottom={ false } />
-            <Button borderBottom={ false }>
-              <div style={ style.text }>{ 'Shift' }</div>
-            </Button>
+          <div style={ style.batteryLevel }>
+             { '.....' }
           </div>
-
-          <Keyboard keys={ this.props.keys } />
-        </div>
-        <div style={ style.model }>
-          { 'OP-1' }
-        </div>
-        <div style={ style.batteryLevel }>
-          { '.....' }
-        </div>
-        <div style={ style.mic }>
-          <div style={ style.micHole }>{ '..' }</div>
-          <div style={ style.micHole }>{ '..' }</div>
-        </div>
-      </div>
+          <div style={ style.mic }>
+             <div style={ style.micHole }>{ '..' }</div>
+             <div style={ style.micHole }>{ '..' }</div>
+          </div>
+       </div>
     );
   }
 }

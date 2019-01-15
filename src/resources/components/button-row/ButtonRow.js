@@ -3,7 +3,7 @@ import Button from '../button/Button.js';
 
 export default class ButtonRow extends Component {
   render() {
-    const { oscKeys } = this.props;
+    const { oscKey } = this.props;
     const style = {
       number: {
         fontFamily: '\'Quicksand\', sans-serif',
@@ -33,16 +33,16 @@ export default class ButtonRow extends Component {
         <Button />
         <Button />
         <Button />
-        <Button isPressed={ oscKeys.indexOf(49) > -1 }>
+        <Button isPressed={ oscKey === 49 }>
           <div style={ style.number }>{ '1' }</div>
         </Button>
-        <Button isPressed={ oscKeys.indexOf(50) > -1 }>
+        <Button isPressed={ oscKey === 50 }>
           <div style={ style.number }>{ '2' }</div>
         </Button>
-        <Button isPressed={ oscKeys.indexOf(51) > -1 }>
+        <Button isPressed={ oscKey === 51 }>
           <div style={ style.number }>{ '3' }</div>
         </Button>
-        <Button isPressed={ oscKeys.indexOf(52) > -1 }>
+        <Button isPressed={ oscKey === 52 }>
           <div style={ style.number }>{ '4' }</div>
         </Button>
         <Button isPressed={ this.props.arrowKey === 53 }>
@@ -64,5 +64,5 @@ export default class ButtonRow extends Component {
 }
 
 ButtonRow.propTypes = {
-  oscKeys: PropTypes.array,
+  oscKey: PropTypes.number,
 };
