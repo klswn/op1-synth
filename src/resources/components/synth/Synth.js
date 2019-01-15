@@ -8,6 +8,7 @@ import Button from '../button/Button.js';
 import ButtonRow from '../button-row/ButtonRow.js';
 import Keyboard from '../keyboard/Keyboard.js';
 import Parameter from '../parameter/Parameter.js';
+import SimpleReverb from '../../utils/SimpleReverb.js';
 
 class Synth extends Component {
   constructor() {
@@ -59,17 +60,6 @@ class Synth extends Component {
   componentWillUnmount() {
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('keyup', this.onKeyUp);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    let { volume } = prevState,
-      { masterVolume } = this.state;
-
-    // if (volume !== this.state.volume) {
-    //   masterVolume.gain.value = volume / 127;
-    //
-    //   this.setState({ masterVolume });
-    // }
   }
 
   onKeyDown = (e) => {
@@ -136,6 +126,11 @@ class Synth extends Component {
       let osc = context.createOscillator();
       let compressor = context.createDynamicsCompressor();
       let filter = context.createBiquadFilter();
+      let reverb = new SimpleReverb(context, {
+        seconds: 3,
+        decay: 1,
+        reverse: 0,
+      });
 
       switch (oscKey) {
         case 49:
@@ -185,6 +180,10 @@ class Synth extends Component {
       // normal
       osc.connect(masterVolume);
       masterVolume.connect(analyser);
+
+      // withReverb
+      // osc.connect(reverb.input);
+      // reverb.connect(analyser);
 
       // with compressor and fitler
       // osc.connect(compressor);
