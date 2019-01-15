@@ -135,6 +135,7 @@ class Synth extends Component {
     oscKeys.forEach(oscKey => {
       let osc = context.createOscillator();
       let compressor = context.createDynamicsCompressor();
+      let filter = context.createBiquadFilter();
 
       switch (oscKey) {
         case 49:
@@ -166,22 +167,29 @@ class Synth extends Component {
           break;
       }
 
-      compressor.attack.setValueAtTime(1, context.currentTime + 1000);
-      compressor.release.setValueAtTime(0, context.currentTime + 1000);
+      // compressor values
+      compressor.attack.setValueAtTime(0, context.currentTime + 1000);
+      // compressor.release.setValueAtTime(0, context.currentTime + 1000);
 
+      // oscillator values
       osc.frequency.value = frequency * octave;
-
       oscillators[frequency * octave * oscKey] = osc;
 
+      // masterVolume values
       masterVolume.gain.value = 0.3 / oscKeys.length;
+
+      // filter values
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1000, context.currentTime);
 
       // normal
       osc.connect(masterVolume);
       masterVolume.connect(analyser);
 
-      // with compressor
+      // with compressor and fitler
       // osc.connect(compressor);
-      // compressor.connect(masterVolume);
+      // compressor.connect(filter);
+      // filter.connect(masterVolume);
       // masterVolume.connect(analyser);
 
       // connect to analyser
