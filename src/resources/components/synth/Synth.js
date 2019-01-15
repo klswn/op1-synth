@@ -8,6 +8,7 @@ import Button from '../button/Button.js';
 import ButtonRow from '../button-row/ButtonRow.js';
 import Keyboard from '../keyboard/Keyboard.js';
 import Parameter from '../parameter/Parameter.js';
+import SimpleReverb from '../../utils/SimpleReverb.js';
 
 class Synth extends Component {
   constructor() {
@@ -105,6 +106,11 @@ class Synth extends Component {
   playSound = (frequency) => {
     let { context, oscillators, masterVolume, oscKey, arrowKey } = this.state,
       osc = context.createOscillator(),
+      verb = new SimpleReverb(context, {
+        seconds: 1,
+        decay: 1,
+        reverse: 0,
+      }),
       octave = 1;
 
     switch (oscKey) {
@@ -141,7 +147,9 @@ class Synth extends Component {
 
     oscillators[frequency * octave] = osc;
 
-    osc.connect(masterVolume);
+    osc.connect(verb.input);
+
+    verb.connect(masterVolume);
 
     masterVolume.connect(context.destination);
 
