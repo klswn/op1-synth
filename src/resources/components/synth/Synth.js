@@ -147,10 +147,13 @@ class Synth extends Component {
 
     oscillators[frequency * octave] = osc;
 
+    // normal
+    // osc.connect(masterVolume);
+    // masterVolume.connect(context.destination);
+
+    // with reverb
     osc.connect(verb.input);
-
-    verb.connect(masterVolume);
-
+    verb.connect(context.destination);
     masterVolume.connect(context.destination);
 
     osc.start(0);
