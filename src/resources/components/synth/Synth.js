@@ -9,6 +9,7 @@ import ButtonRow from '../button-row/ButtonRow.js';
 import Keyboard from '../keyboard/Keyboard.js';
 import Parameter from '../parameter/Parameter.js';
 import SimpleReverb from '../../utils/SimpleReverb.js';
+import { makeDistortionCurve } from '../../utils/Distortion.js';
 
 class Synth extends Component {
   constructor() {
@@ -126,6 +127,7 @@ class Synth extends Component {
       let osc = context.createOscillator();
       let compressor = context.createDynamicsCompressor();
       let filter = context.createBiquadFilter();
+      let distortion = context.createWaveShaper();
       let reverb = new SimpleReverb(context, {
         seconds: 3,
         decay: 1,
@@ -163,7 +165,7 @@ class Synth extends Component {
       }
 
       // compressor values
-      compressor.attack.setValueAtTime(0, context.currentTime + 1000);
+      // compressor.attack.setValueAtTime(0, context.currentTime + 1000);
       // compressor.release.setValueAtTime(0, context.currentTime + 1000);
 
       // oscillator values
@@ -174,16 +176,24 @@ class Synth extends Component {
       masterVolume.gain.value = 0.3 / oscKeys.length;
 
       // filter values
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1000, context.currentTime);
+      // filter.type = 'lowpass';
+      // filter.frequency.setValueAtTime(1000, context.currentTime);
+
+      // distortion values
+      // distortion.curve = makeDistortionCurve(400);
+      // distortion.oversample = '4x';
 
       // normal
       osc.connect(masterVolume);
       masterVolume.connect(analyser);
 
-      // withReverb
+      // with reverb
       // osc.connect(reverb.input);
       // reverb.connect(analyser);
+
+      // with distortion
+      // osc.connect(distortion);
+      // distortion.connect(analyser);
 
       // with compressor and fitler
       // osc.connect(compressor);
