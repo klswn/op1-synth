@@ -124,15 +124,21 @@ class Synth extends Component {
       octave = 1;
 
     oscKeys.forEach(oscKey => {
-      let osc = context.createOscillator();
-      let compressor = context.createDynamicsCompressor();
-      let filter = context.createBiquadFilter();
-      let distortion = context.createWaveShaper();
-      let reverb = new SimpleReverb(context, {
+      const osc = context.createOscillator();
+      const compressor = context.createDynamicsCompressor();
+      const filter = context.createBiquadFilter();
+      const distortion = context.createWaveShaper();
+      const reverb = new SimpleReverb(context, {
         seconds: 3,
         decay: 1,
         reverse: 0,
       });
+
+      // custom periodic wave
+      // const sineTerms = new Float32Array([0, 0, 1, 0, 1]);
+      // const cosineTerms = new Float32Array(sineTerms.length);
+      // const customWaveform = context.createPeriodicWave(cosineTerms, sineTerms);
+      // osc.setPeriodicWave(customWaveform);
 
       switch (oscKey) {
         case 49:
